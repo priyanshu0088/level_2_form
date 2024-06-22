@@ -1,5 +1,5 @@
-// src/components/JobApplicationForm.js
-import React from 'react';
+// src/components/JobApplicationForm.jsx
+import React, { useState } from 'react';
 import useForm from '../hooks/useForm';
 import './JobApplicationForm.css';
 
@@ -62,12 +62,22 @@ const JobApplicationForm = () => {
     return errors;
   };
 
-  const { handleChange, handleSubmit, values, errors, isSubmitting } = useForm(initialValues, validate);
+  const { handleChange, handleSubmit, values, errors } = useForm(initialValues, validate);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const submissionErrors = validate(values);
+    if (Object.keys(submissionErrors).length === 0) {
+      handleSubmit(e);
+      setFormSubmitted(true);
+    }
+  };
 
   return (
     <div className="container">
       <h1>Job Application Form</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onSubmit}>
         <div>
           <label htmlFor="fullName">Full Name</label>
           <input type="text" id="fullName" name="fullName" value={values.fullName} onChange={handleChange} />
@@ -115,19 +125,15 @@ const JobApplicationForm = () => {
         )}
         <div>
           <label>Additional Skills</label>
-          <div>
+          <div className="skills-container">
             <label>
               <input type="checkbox" name="additionalSkills" value="JavaScript" checked={values.additionalSkills.includes('JavaScript')} onChange={handleChange} />
               JavaScript
             </label>
-          </div>
-          <div>
             <label>
               <input type="checkbox" name="additionalSkills" value="CSS" checked={values.additionalSkills.includes('CSS')} onChange={handleChange} />
               CSS
             </label>
-          </div>
-          <div>
             <label>
               <input type="checkbox" name="additionalSkills" value="Python" checked={values.additionalSkills.includes('Python')} onChange={handleChange} />
               Python
@@ -142,7 +148,7 @@ const JobApplicationForm = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
-      {isSubmitting && (
+      {formSubmitted && (
         <div className="summary">
           <h3>Summary</h3>
           <p><strong>Full Name:</strong> {values.fullName}</p>
